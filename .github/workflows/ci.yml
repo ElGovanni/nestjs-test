@@ -1,0 +1,33 @@
+name: Test
+on: [push]
+
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [ 14.x ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install
+      - run: npm run test:cov
+  e2e-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 14.x ]
+    needs: [ unit-test ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: npm install
+        run: npm ci
+      - name: Run tests
+        run: npm run test:e2e
